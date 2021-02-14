@@ -57,11 +57,11 @@ static	int		*instructionPointers = NULL;
 
 #if defined( FTOL_PTR )
 int _ftol( float );
-static	int		ftolPtr = (int)_ftol;
+static	int		ftolPtr = &_ftol;
 #endif
 
 void AsmCall( void );
-static	int		asmCallPtr = (int)AsmCall;
+static	int		asmCallPtr = &AsmCall;
 
 #else // _WIN32
 
@@ -76,11 +76,11 @@ int qftol0E7F( void ); // bk010102 - fixed bogus bits (duh)
 int qftol0F7F( void );
 
 
-static	int		ftolPtr = (int)qftol0F7F;
+static	int		ftolPtr;
 #endif // FTOL_PTR
 
 void doAsmCall( void );
-static	int		asmCallPtr = (int)doAsmCall;
+static	int		asmCallPtr;
 #endif // !_WIN32
 
 
@@ -105,7 +105,7 @@ static	ELastCommand	LastCommand;
 AsmCall
 =================
 */
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__GNUC__)
 __declspec( naked ) void AsmCall( void ) {
 int		programStack;
 int		*opStack;
@@ -201,7 +201,7 @@ void AsmCall( void ) {
 			"	addl %3,%%eax				\n\t" \
 			"	call *(%%eax)				\n\t" \
 		  " movl (%%edi),%%eax   \n\t" \
-	    " andl callMask, %%eax \n\t" \
+	    " andl 1, %%eax \n\t" \
 			"	jmp doret					   \n\t" \
 			"systemCall:					\n\t" \
 			"	negl %%eax					\n\t" \
@@ -566,7 +566,7 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 			Emit4( (int)vm->dataBase );
 			Emit4( pc );
 			EmitString( "FF 15" );		// call asmCallPtr
-			Emit4( (int)&asmCallPtr );
+			Emit4( (int)&callAsmCall );
 			break;
 		case OP_PUSH:
 			EmitAddEDI4(vm);
@@ -1002,7 +1002,11 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 			// call the library conversion function
 			EmitString( "D9 07" );		// fld dword ptr [edi]
 			EmitString( "FF 15" );		// call ftolPtr
-			Emit4( (int)&ftolPtr );
+#if _WIN32
+			Emit4( (int)&_ftol );
+#else
+			Emit4( (int)&qftol0F7F );
+#endif
 			EmitCommand(LAST_COMMAND_MOV_EDI_EAX);		// mov dword ptr [edi], eax
 #endif
 			break;
@@ -1140,7 +1144,7 @@ int	VM_CallCompiled( vm_t *vm, int *args ) {
 	entryPoint = vm->codeBase;
 	opStack = &stack;
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__GNUC__)
 	__asm  {
 		pushad
 		mov		esi, programStack;

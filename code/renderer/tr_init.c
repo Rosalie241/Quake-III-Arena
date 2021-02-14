@@ -122,7 +122,11 @@ cvar_t	*r_portalOnly;
 cvar_t	*r_subdivisions;
 cvar_t	*r_lodCurveError;
 
+#if defined(WIN32)
+extern cvar_t	*r_fullscreen;
+#else
 cvar_t	*r_fullscreen;
+#endif 
 
 cvar_t	*r_customwidth;
 cvar_t	*r_customheight;
@@ -148,13 +152,21 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+#ifdef _WIN32
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
 void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
 void ( APIENTRY * qglUnlockArraysEXT) ( void );
+#else
+extern void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
+extern void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
+extern void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
+extern void ( APIENTRY * qglLockArraysEXT)( GLint, GLint);
+extern void ( APIENTRY * qglUnlockArraysEXT) ( void );
+#endif 
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
 	if ( shouldBeIntegral )

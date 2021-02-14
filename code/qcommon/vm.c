@@ -541,13 +541,15 @@ vm_t *VM_Create( const char *module, int (*systemCalls)(int *),
 	// copy or compile the instructions
 	vm->codeLength = header->codeLength;
 
+/* default to interpreter
 	if ( interpret >= VMI_COMPILED ) {
 		vm->compiled = qtrue;
 		VM_Compile( vm, header );
 	} else {
+*/
 		vm->compiled = qfalse;
 		VM_PrepareInterpreter( vm, header );
-	}
+//	}
 
 	// free the original file
 	FS_FreeFile( header );
@@ -698,9 +700,13 @@ int	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
                             args[4],  args[5],  args[6], args[7],
                             args[8],  args[9], args[10], args[11],
                             args[12], args[13], args[14], args[15]);
-	} else if ( vm->compiled ) {
+	} else 
+	
+	/* default to interpreter
+		if ( vm->compiled ) {
 		r = VM_CallCompiled( vm, &callnum );
-	} else {
+	} else { */
+	{
 		r = VM_CallInterpreted( vm, &callnum );
 	}
 

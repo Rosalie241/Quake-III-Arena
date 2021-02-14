@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "be_interface.h"
 #include "be_aas_def.h"
 
+#define __inline static inline
 #define ROUTING_DEBUG
 
 //travel time in hundreths of a second = distance * 100 / speed

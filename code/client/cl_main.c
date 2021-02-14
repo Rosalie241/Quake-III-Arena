@@ -75,7 +75,11 @@ clientStatic_t		cls;
 vm_t				*cgvm;
 
 // Structure containing functions exported from refresh DLL
+#ifdef _WIN32
 refexport_t	re;
+#else
+extern refexport_t	re;
+#endif
 
 ping_t	cl_pinglist[MAX_PINGREQUESTS];
 

@@ -59,17 +59,14 @@ Sys_SnapVector
 ================
 */
 long fastftol( float f ) {
-	static int tmp;
-	__asm fld f
-	__asm fistp tmp
-	__asm mov eax, tmp
+	return (long)f;
 }
 
 void Sys_SnapVector( float *v )
 {
 	int i;
 	float f;
-
+#if !defined(__GNUC__)
 	f = *v;
 	__asm	fld		f;
 	__asm	fistp	i;
@@ -84,13 +81,13 @@ void Sys_SnapVector( float *v )
 	__asm	fld		f;
 	__asm	fistp	i;
 	*v = i;
-	/*
+#else
 	*v = fastftol(*v);
 	v++;
 	*v = fastftol(*v);
 	v++;
 	*v = fastftol(*v);
-	*/
+#endif 
 }
 
 
@@ -112,7 +109,7 @@ static void CPUID( int func, unsigned regs[4] )
 {
 	unsigned regEAX, regEBX, regECX, regEDX;
 
-#ifndef __VECTORC
+#if !defined(__GNUC__)
 	__asm mov eax, func
 	__asm __emit 00fh
 	__asm __emit 0a2h
@@ -135,6 +132,7 @@ static void CPUID( int func, unsigned regs[4] )
 
 static int IsPentium( void )
 {
+#if !defined(__GNUC__)
 	__asm 
 	{
 		pushfd						// save eflags
@@ -163,6 +161,7 @@ set21:
 err:
 	return qfalse;
 good:
+#endif
 	return qtrue;
 }
 

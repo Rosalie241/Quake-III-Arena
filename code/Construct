@@ -232,7 +232,7 @@ $COMMON_CFLAGS = '-pipe -fsigned-char ';
 if ($config eq 'debug')
 {
   # use -Werror for better QA  
-  $BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -Werror -O ';
+  $BASE_CFLAGS = $COMMON_CFLAGS . '-g -Wall -Wno--Wpointer-to-int-cast -Wno-unused-but-set-variable -O ';
 	$BSPC_BASE_CFLAGS = $COMMON_CFLAGS . '-g -O -DLINUX -DBSPC -Dstricmp=strcasecmp ';
 }
 else
@@ -264,13 +264,6 @@ if ($gcc_version[0] eq '2')
 	$LINK = $CC;
 } else {
 	$LINK = $CXX;
-}
-
-my @ccache = Cons_gcc::get_ccache();
-if ($ccache[0] eq '1')
-{
-  $CC = $ccache[1] . " " . $CC;
-  $CXX = $ccache[1] . " " . $CXX;
 }
 
 print 'cpu : ' . $cpu . "\nOS  : " . $OS . "\n";
